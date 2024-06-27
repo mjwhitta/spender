@@ -33,8 +33,7 @@ and will be ignored for all calculations.
 Open a terminal and run the following:
 
 ```
-$ go install --ldflags "-s -w" --trimpath \
-    github.com/mjwhitta/spender/cmd/spendcat@latest
+$ go install github.com/mjwhitta/spender/cmd/spendcat@latest
 ```
 
 ## Usage
