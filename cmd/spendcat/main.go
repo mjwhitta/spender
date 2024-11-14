@@ -38,7 +38,7 @@ func main() {
 			panic(e)
 		}
 
-		if e = s.CreateGroups(string(b)); e != nil {
+		if e = s.CreateGroups(b); e != nil {
 			panic(e)
 		}
 	}

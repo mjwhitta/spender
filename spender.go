@@ -1,12 +1,12 @@
 package spender
 
 import (
+	"encoding/json"
 	"sort"
 	"strings"
 
 	"github.com/mjwhitta/errors"
 	hl "github.com/mjwhitta/hilighter"
-	"github.com/mjwhitta/jq"
 )
 
 // Spender is a struct containing Groups and Merchants, and allows for
@@ -29,21 +29,16 @@ func New() *Spender {
 
 // CreateGroups will parse a JSON blob to create a list of Groups with
 // associated patterns to match against Merchant names.
-func (s *Spender) CreateGroups(json string) error {
+func (s *Spender) CreateGroups(blob []byte) error {
 	var e error
-	var j *jq.JSON
+	var groups map[string][]string
 	var m *Merchant
-	var patterns []string
 
-	if j, e = jq.New(json); e != nil {
+	if e = json.Unmarshal(blob, &groups); e != nil {
 		return errors.Newf("failed to parse JSON: %w", e)
 	}
 
-	for _, group := range j.GetKeys() {
-		if patterns, e = j.MustGetStringArray(group); e != nil {
-			return errors.Newf("unexpected JSON: %w", e)
-		}
-
+	for group, patterns := range groups {
 		m = &Merchant{Name: group}
 		if e = m.Group(patterns); e != nil {
 			return e
