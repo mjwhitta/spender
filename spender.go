@@ -189,6 +189,7 @@ func (s *Spender) Tally() {
 	s.results = append(s.results, row)
 
 	// Divider
+	//nolint:mnd // 2 is b/c group and total columns
 	s.results = append(s.results, make([]string, len(labels)+2))
 
 	// Build results row by row
@@ -244,6 +245,7 @@ func (s *Spender) Tally() {
 	}
 
 	// Divider
+	//nolint:mnd // 2 is b/c group and total columns
 	s.results = append(s.results, make([]string, len(labels)+2))
 
 	// Add label totals
@@ -264,7 +266,7 @@ func (s *Spender) Tally() {
 		row = append(row, floatStr(totals[label]))
 	}
 
-	// Add total total
+	// Add total totals
 	row = append(row, floatStr(total))
 
 	s.results = append(s.results, row)

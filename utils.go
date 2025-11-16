@@ -46,6 +46,7 @@ func normalize(s string) string {
 	s = strings.ReplaceAll(s, "|", "")
 	s = trimBegin.ReplaceAllString(s, "")
 	s = trimEnd.ReplaceAllString(s, "")
+
 	return strings.TrimSpace(s)
 }
 

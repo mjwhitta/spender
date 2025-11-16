@@ -2,13 +2,13 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	"github.com/mjwhitta/cli"
-	hl "github.com/mjwhitta/hilighter"
 	"github.com/mjwhitta/log"
 	"github.com/mjwhitta/spender"
 )
@@ -17,13 +17,18 @@ func main() {
 	defer func() {
 		if r := recover(); r != nil {
 			if flags.verbose {
-				panic(r.(error).Error())
+				panic(r)
 			}
-			log.ErrX(Exception, r.(error).Error())
+
+			switch r := r.(type) {
+			case error:
+				log.ErrX(Exception, r.Error())
+			case string:
+				log.ErrX(Exception, r)
+			}
 		}
 	}()
 
-	var b []byte
 	var cost float64
 	var e error
 	var f *os.File
@@ -33,22 +38,20 @@ func main() {
 
 	validate()
 
-	if flags.groups != "" {
-		if b, e = os.ReadFile(flags.groups); e != nil {
-			panic(e)
-		}
-
-		if e = s.CreateGroups(b); e != nil {
-			panic(e)
-		}
+	if e = readGroups(s); e != nil {
+		panic(e)
 	}
 
 	for _, file := range cli.Args() {
 		// Open file for read
-		if f, e = os.Open(file); e != nil {
+		if f, e = os.Open(filepath.Clean(file)); e != nil {
 			panic(e)
 		}
-		defer f.Close()
+		defer func() {
+			if e := f.Close(); e != nil {
+				panic(e)
+			}
+		}()
 
 		// Create CSV reader
 		r = csv.NewReader(f)
@@ -67,10 +70,11 @@ func main() {
 
 		// Read all lines
 		if lines, e = r.ReadAll(); e != nil {
-			panic(hl.Errorf("%s: %w", file, e))
+			panic(fmt.Errorf("%s: %w", file, e))
 		}
 
 		for _, ln := range lines {
+			//nolint:mnd // expecting 2 fields
 			if len(ln) != 2 {
 				log.ErrX(Exception, "invalid file")
 			}
@@ -82,7 +86,7 @@ func main() {
 			ln[1] = strings.TrimSpace(ln[1])
 
 			if cost, e = strconv.ParseFloat(ln[1], 64); e != nil {
-				log.ErrfX(Exception, "invalid file: %s", e)
+				log.ErrXf(Exception, "invalid file: %s", e)
 			}
 
 			s.Purchase(file, ln[0], cost)
@@ -93,5 +97,24 @@ func main() {
 	s.Expand = flags.expand
 	s.Include = flags.include
 
-	hl.Printf("\n%s\n\n", s)
+	fmt.Printf("\n%s\n\n", s)
+}
+
+func readGroups(s *spender.Spender) error {
+	var b []byte
+	var e error
+
+	if flags.groups != "" {
+		if b, e = os.ReadFile(flags.groups); e != nil {
+			e = fmt.Errorf("failed to read %s: %w", flags.groups, e)
+			return e
+		}
+
+		if e = s.CreateGroups(b); e != nil {
+			//nolint:wrapcheck // I'm not wrapping my own functions
+			return e
+		}
+	}
+
+	return nil
 }
