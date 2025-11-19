@@ -10,6 +10,7 @@ import (
 
 	"github.com/mjwhitta/cli"
 	"github.com/mjwhitta/log"
+	"github.com/mjwhitta/pathname"
 	"github.com/mjwhitta/spender"
 )
 
@@ -44,7 +45,7 @@ func main() {
 
 	for _, file := range cli.Args() {
 		// Open file for read
-		if f, e = os.Open(filepath.Clean(file)); e != nil {
+		if f, e = os.Open(pathname.ExpandPath(file)); e != nil {
 			panic(e)
 		}
 		defer func() {
