@@ -8,7 +8,12 @@ import (
 )
 
 func colorize(
-	s string, x int, y int, maxX int, maxY int, expanded bool,
+	s string,
+	x int,
+	y int,
+	maxX int,
+	maxY int,
+	expanded bool,
 ) string {
 	// Totals in red, unless expanded
 	if (x == maxX) || (y == maxY) {
