@@ -5,7 +5,7 @@ import "regexp"
 type set struct{}
 
 // Version is the package version.
-const Version string = "0.2.8"
+const Version string = "0.2.9"
 
 var (
 	trimBegin *regexp.Regexp = regexp.MustCompile(
