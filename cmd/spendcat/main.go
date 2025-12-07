@@ -75,7 +75,7 @@ func main() {
 		}
 
 		for _, ln := range lines {
-			//nolint:mnd // expecting 2 fields
+			//nolint:mnd // Expecting 2 fields
 			if len(ln) != 2 {
 				log.ErrX(Exception, "invalid file")
 			}
